@@ -19,7 +19,7 @@ public class Main {
     static Path INITFOLDER;
     static File[] FILES;
     static final int MAX_CHAIN_SIZE = 7;
-    static Map<File, String> toBeRenamed = new HashMap<>();
+    static final Map<File, String> toBeRenamed = new HashMap<>();
 
     public static void main(String...args) {
         INITFOLDER = Paths.get("/Users/ivanluchkin/Downloads/mcopy");
@@ -65,7 +65,10 @@ public class Main {
             System.out.println("Too many failed scans. Please, review the source folder.");
             return;
         }
-        if (fileIndex >= FILES.length) return;
+        if (fileIndex >= FILES.length) {
+            executeTransaction();
+            return;
+        }
         File file = FILES[fileIndex];
         String result = getResult(file);
         if (result.equals("Could not find a barcode on the image.")) {
@@ -80,7 +83,7 @@ public class Main {
             processFiles(++fileIndex, ++counter, lastBarcodeResult, "CHILD");
         } else {
             lastBarcodeResult = result;
-            executeTransaction(toBeRenamed);
+            executeTransaction();
             toBeRenamed.clear();
             toBeRenamed.put(file, RESFOLDER.toString() + "/_" + lastBarcodeResult + "_" + file.getName());
             processFiles(++fileIndex, 0, lastBarcodeResult, "PARENT");
@@ -88,18 +91,15 @@ public class Main {
 
     }
 
-    private static void executeTransaction(Map<File, String> map) {
-        for (Map.Entry<File, String> entry : map.entrySet()) {
+    private static void executeTransaction() {
+        for (Map.Entry<File, String> entry : Main.toBeRenamed.entrySet()) {
             entry.getKey().renameTo(new File(entry.getValue()));
         }
     }
 
     private static String getResult(File file) {
         try {
-            if (file.getName().contains("!")) {
-                String result = file.getName().substring(1, 6);
-                return result;
-            }
+            if (file.getName().contains("!")) return file.getName().substring(1, 6);
             LuminanceSource src = new BufferedImageLuminanceSource(ImageIO.read(file.toURI().toURL()));
             BinaryBitmap imageBitmap = new BinaryBitmap(new HybridBinarizer(src));
             ArrayList<Result> results = new ArrayList<>(1);
