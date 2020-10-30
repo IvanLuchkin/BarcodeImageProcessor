@@ -103,7 +103,7 @@ jobs:
           echo "::set-env name=UPLOAD_URL::$(cat upload_url.txt)"
       - name: 'Build Mac OS Image'
         run: |
-          native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -H:IncludeResources=logback.xml --allow-incomplete-classpath -jar simple-socket-fn-logger-${{env.VERSION}}-all.jar
+          native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -H:IncludeResources=logback.xml --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: success() && contains(github.ref, 'v')
         uses: actions/upload-artifact@v2-preview
@@ -155,7 +155,7 @@ jobs:
             JAVA_HOME: ./graalvm-ce-java11-20.1.0
           run: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-            ./graalvm-ce-java11-20.1.0/bin/native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -H:IncludeResources=logback.xml -H:Name=simple-socket-fn-logger-${{env.VERSION}}-all --allow-incomplete-classpath -jar simple-socket-fn-logger-${{env.VERSION}}-all.jar
+            ./graalvm-ce-java11-20.1.0/bin/native-image --no-server --no-fallback -H:ReflectionConfigurationResources=reflection-config.json -H:IncludeResources=logback.xml -H:Name=bip-${{env.VERSION}} --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
         - name: 'Get Release URL'
           if: contains(github.ref, 'v')
           uses: actions/download-artifact@v2-preview
