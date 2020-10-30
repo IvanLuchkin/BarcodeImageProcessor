@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Java CI with Gradle
+name: bip
 
 on:
   push:
@@ -30,8 +30,8 @@ jobs:
     - name: 'Publish JAR'
       uses: actions/upload-artifact@v2-preview
       with:
-        name: 'simple-socket-fn-logger-${{env.VERSION}}-all.jar'
-        path: build/libs/*-all.jar
+        name: 'bip-${{env.VERSION}}.jar'
+        path: build/libs/*.jar
     - name: 'Create Release'
       if: contains(github.ref, 'v')
       id: create_release
@@ -53,8 +53,8 @@ jobs:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
         upload_url: ${{steps.create_release.outputs.upload_url}}
-        asset_path: build/libs/simple-socket-fn-logger-${{env.VERSION}}-all.jar
-        asset_name: simple-socket-fn-logger-${{env.VERSION}}-all.jar
+        asset_path: build/libs/bip-${{env.VERSION}}.jar
+        asset_name: bip-${{env.VERSION}}.jar
         asset_content_type: application/java-archive
     - name: 'Write Upload URL To File'
       if: contains(github.ref, 'v')
@@ -91,7 +91,7 @@ jobs:
       - name: 'Get JAR Artifact'
         uses: actions/download-artifact@v2-preview
         with:
-          name: 'simple-socket-fn-logger-${{env.VERSION}}-all.jar'
+          name: 'bip-${{env.VERSION}}.jar'
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
         uses: actions/download-artifact@v2-preview
@@ -108,8 +108,8 @@ jobs:
         if: success() && contains(github.ref, 'v')
         uses: actions/upload-artifact@v2-preview
         with:
-          name: 'simple-socket-fn-logger-${{env.VERSION}}-macOS'
-          path: 'simple-socket-fn-logger-${{env.VERSION}}-all'
+          name: 'bip-${{env.VERSION}}-macOS'
+          path: 'bip-${{env.VERSION}}'
       - name: 'Upload Mac OS Image Asset'
         if: success()
         id: upload-release-asset
@@ -118,8 +118,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ env.UPLOAD_URL }}
-          asset_name: 'simple-socket-fn-logger-${{env.VERSION}}-macOS'
-          asset_path: 'simple-socket-fn-logger-${{env.VERSION}}-all'
+          asset_name: 'bip-${{env.VERSION}}-macOS'
+          asset_path: 'bip-${{env.VERSION}}'
           asset_content_type: application/octet-stream
           
   build-windows-image:
@@ -148,7 +148,7 @@ jobs:
         - name: 'Get JAR Artifact'
           uses: actions/download-artifact@v2-preview
           with:
-            name: 'simple-socket-fn-logger-${{env.VERSION}}-all.jar'
+            name: 'bip-${{env.VERSION}}.jar'
         - name: 'Build Native Image'
           shell: cmd
           env:
@@ -170,8 +170,8 @@ jobs:
           if: success()
           uses: actions/upload-artifact@v2-preview
           with:
-            name: 'simple-socket-fn-logger-${{env.VERSION}}-windows.exe'
-            path: 'simple-socket-fn-logger-${{env.VERSION}}-all.exe'
+            name: 'bip-${{env.VERSION}}-windows.exe'
+            path: 'bip-${{env.VERSION}}.exe'
         - name: 'Release Windows Image Asset'
           if: success() && contains(github.ref, 'v')
           id: upload-release-asset
@@ -180,6 +180,6 @@ jobs:
             GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           with:
             upload_url: ${{env.UPLOAD_URL}}
-            asset_name: 'simple-socket-fn-logger-${{env.VERSION}}-windows.exe'
-            asset_path: 'simple-socket-fn-logger-${{env.VERSION}}-all.exe'
+            asset_name: 'bip-${{env.VERSION}}-windows.exe'
+            asset_path: 'bip-${{env.VERSION}}.exe'
             asset_content_type: application/octet-stream
