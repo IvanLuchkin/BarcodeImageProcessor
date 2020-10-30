@@ -18,14 +18,50 @@ public class Main {
     static Path RESFOLDER;
     static Path INITFOLDER;
     static File[] FILES;
-    static final int MAX_CHAIN_SIZE = 7;
+    static int MAX_CHAIN_SIZE_DEFAULT;
+    static int MAX_CHAIN_SIZE_EXCLUSIVE;
     static final Map<File, String> toBeRenamed = new HashMap<>();
 
     public static void main(String...args) {
-        INITFOLDER = Paths.get("/Users/ivanluchkin/Downloads/mcopy");
+        INITFOLDER = Paths.get(args[0]);
+        if (args.length == 3) {
+            try {
+                int maxChainArgDef = Integer.parseInt(args[1]);
+                int maxChainArgExcl = Integer.parseInt(args[2]);
+                if (maxChainArgExcl < 11 && maxChainArgDef > 0 && maxChainArgDef < 11 && maxChainArgDef < maxChainArgExcl) {
+                    MAX_CHAIN_SIZE_EXCLUSIVE = maxChainArgExcl;
+                    MAX_CHAIN_SIZE_DEFAULT = maxChainArgDef;
+                } else {
+                    System.out.println("Incorrect argument(s) for maximum angle count.");
+                    System.exit(1);
+                }
+            } catch (NumberFormatException nfe) {
+                System.out.println("Incorrect argument(s) for maximum angle count. Please, restart the program with integer argument.");
+                System.exit(1);
+            }
+        } else if (args.length == 2) {
+            try {
+                int maxChainArgDef = Integer.parseInt(args[1]);
+                if (maxChainArgDef > 0 && maxChainArgDef < 11) {
+                    MAX_CHAIN_SIZE_EXCLUSIVE = -1;
+                    MAX_CHAIN_SIZE_DEFAULT = maxChainArgDef;
+                } else {
+                    System.out.println("Incorrect argument for maximum angle count.");
+                    System.exit(1);
+                }
+            } catch (NumberFormatException nfe) {
+                System.out.println("Incorrect argument for maximum angle count. Please, restart the program with integer argument.");
+                System.exit(1);
+            }
+        } else {
+            MAX_CHAIN_SIZE_DEFAULT = 2;
+            MAX_CHAIN_SIZE_EXCLUSIVE = -1;
+            System.out.println("No arguments for maximum angle count provided. Running with default value – 2.");
+        }
+
         File[] files = new File(INITFOLDER.toString()).listFiles();
         if (files == null) {
-            System.out.println("No files found in this folder.");
+            System.out.println("Folder does not exist or does not contain any files.");
             System.exit(1);
         }
         FILES = Arrays.stream(files).filter(V -> (V.getName().contains(".jpg") ||
@@ -34,11 +70,7 @@ public class Main {
                                                              V.getName().contains(".JPEG") ||
                                                              V.getName().contains(".png") ||
                                                              V.getName().contains(".tif"))).toArray(File[]::new);
-        System.out.println(Arrays.toString(files));
-        System.out.println(Arrays.toString(FILES));
-        File[] copy = Arrays.copyOf(FILES, FILES.length);
-        Arrays.sort(copy, Comparator.naturalOrder());
-        System.out.println(Arrays.toString(copy));
+        checkForIncorrectlyRenamed();
         Arrays.sort(FILES, (prev, next) -> {
             String prevName = prev.getName();
             String nextName = next.getName();
@@ -51,7 +83,7 @@ public class Main {
             RESFOLDER = Paths.get(INITFOLDER + "/res");
             Files.createDirectory(RESFOLDER);
         } catch (FileAlreadyExistsException faee) {
-            System.out.println("Result folder already exists.");
+            System.out.println("Result folder already exists. File processing continues.");
 
         } catch (IOException ioe) {
             System.out.println("Could not create result folder.");
@@ -61,9 +93,17 @@ public class Main {
 
     public static void processFiles(int fileIndex, int counter, String lastResult, String prevFileType) {
         String lastBarcodeResult = lastResult;
-        if (counter > MAX_CHAIN_SIZE) {
-            System.out.println("Too many failed scans. Please, review the source folder.");
-            return;
+        if (MAX_CHAIN_SIZE_EXCLUSIVE == -1) {
+            if (counter > MAX_CHAIN_SIZE_DEFAULT) {
+                System.out.println("Too many failed scans starting from " + lastBarcodeResult + ".");
+                return;
+            }
+        } else {
+            if (counter > MAX_CHAIN_SIZE_EXCLUSIVE) {
+                System.out.println(MAX_CHAIN_SIZE_EXCLUSIVE);
+                System.out.println("!Too many failed scans starting from " + lastBarcodeResult + ".");
+                return;
+            }
         }
         if (fileIndex >= FILES.length) {
             executeTransaction();
@@ -71,6 +111,45 @@ public class Main {
         }
         File file = FILES[fileIndex];
         String result = getResult(file);
+
+        switch(result.length()) {
+            case(38) :
+                switch (prevFileType) {
+                    case "ANGLE" :
+                        toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult + "_" + counter + ".jpg");
+                        break;
+                    case "BARCODE" :
+                        toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult  + ".jpg");
+                        break;
+                }
+                processFiles(++fileIndex, ++counter, lastBarcodeResult, "ANGLE");
+                break;
+            case(5) :
+                if (lastBarcodeResult.equals(result)) {
+                    switch (prevFileType) {
+                        case "ANGLE" :
+                            toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult + "_" + counter + ".jpg");
+                            break;
+                        case "BARCODE" :
+                            toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult  + ".jpg");
+                            break;
+                    }
+                    processFiles(++fileIndex, ++counter, lastBarcodeResult, "ANGLE");
+                } else {
+                    if (!lastBarcodeResult.equals("NO_RES_YET")) MAX_CHAIN_SIZE_EXCLUSIVE = -1;
+                    lastBarcodeResult = result;
+                    executeTransaction();
+                    toBeRenamed.clear();
+                    toBeRenamed.put(file, RESFOLDER.toString() + "/_" + lastBarcodeResult + "_" + file.getName());
+                    processFiles(++fileIndex, 0, lastBarcodeResult, "BARCODE");
+                }
+                break;
+            default :
+                System.out.println("Invalid scan result on " + file.getName() + ".");
+                break;
+        }
+
+         /*
         if (result.equals("Could not find a barcode on the image.")) {
             switch (prevFileType) {
                 case "CHILD" :
@@ -81,14 +160,33 @@ public class Main {
                     break;
             }
             processFiles(++fileIndex, ++counter, lastBarcodeResult, "CHILD");
+        } else if(result.length() == 5) {
+            if (lastBarcodeResult.equals(result)) {
+                toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult  + ".jpg");
+                processFiles(++fileIndex, ++counter, lastBarcodeResult, "CHILD");
+            } else {
+                lastBarcodeResult = result;
+                executeTransaction();
+                toBeRenamed.clear();
+                toBeRenamed.put(file, RESFOLDER.toString() + "/_" + lastBarcodeResult + "_" + file.getName());
+                processFiles(++fileIndex, 0, lastBarcodeResult, "PARENT");
+            }
         } else {
-            lastBarcodeResult = result;
-            executeTransaction();
-            toBeRenamed.clear();
-            toBeRenamed.put(file, RESFOLDER.toString() + "/_" + lastBarcodeResult + "_" + file.getName());
-            processFiles(++fileIndex, 0, lastBarcodeResult, "PARENT");
+            System.out.println("Invalid scan result. Please, review the source folder.");
         }
 
+          */
+
+    }
+
+    private static void checkForIncorrectlyRenamed() {
+        for (File file : FILES) {
+            String name = file.getName();
+            if (name.contains("!") && name.length() < 11) {
+                System.out.println("File " + name + " was renamed incorrectly.");
+                System.exit(1);
+            }
+        }
     }
 
     private static void executeTransaction() {
@@ -99,7 +197,8 @@ public class Main {
 
     private static String getResult(File file) {
         try {
-            if (file.getName().contains("!")) return file.getName().substring(1, 6);
+            String name = file.getName();
+            if (name.contains("!")) return name.substring(1, 6);
             LuminanceSource src = new BufferedImageLuminanceSource(ImageIO.read(file.toURI().toURL()));
             BinaryBitmap imageBitmap = new BinaryBitmap(new HybridBinarizer(src));
             ArrayList<Result> results = new ArrayList<>(1);
@@ -123,7 +222,6 @@ public class Main {
                     re.printStackTrace();
                 }
             }
-
             if (results.isEmpty()) {
                 try {
                     Result theResult = reader.decode(imageBitmap, HINTS);
@@ -132,9 +230,7 @@ public class Main {
                     re.printStackTrace();
                 }
             }
-
             for (Result result : results) {
-                System.out.println(result.getText());
                 return result.getText();
             }
 
