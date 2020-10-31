@@ -93,7 +93,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: 'bip-${{env.VERSION}}.jar'
-          path: ./jar
+          path: ./build/libs
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
         uses: actions/download-artifact@v2
@@ -104,12 +104,12 @@ jobs:
         run: |
           echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
       - name: 'Move to /jar dir'
-        run: cd jar    
+        run: cd build/libs    
       - name: 'Check the contents of target folder'
         run: ls
       - name: 'Build Mac OS Image'
         run: |
-          native-image --no-server --no-fallback --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
+          native-image --no-server --no-fallback -jar bip-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: success() && contains(github.ref, 'v')
         uses: actions/upload-artifact@v2
