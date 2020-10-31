@@ -23,11 +23,13 @@ public class Main {
     static final Map<File, String> toBeRenamed = new HashMap<>();
 
     public static void main(String...args) {
-        INITFOLDER = Paths.get(args[0]);
-        if (args.length == 3) {
+        Scanner input = new Scanner(System.in);
+        String[] params = input.nextLine().split(" +");
+        INITFOLDER = Paths.get(params[0]);
+        if (params.length == 3) {
             try {
-                int maxChainArgDef = Integer.parseInt(args[1]);
-                int maxChainArgExcl = Integer.parseInt(args[2]);
+                int maxChainArgDef = Integer.parseInt(params[1]);
+                int maxChainArgExcl = Integer.parseInt(params[2]);
                 if (maxChainArgExcl < 11 && maxChainArgDef > 0 && maxChainArgDef < 11 && maxChainArgDef < maxChainArgExcl) {
                     MAX_CHAIN_SIZE_EXCLUSIVE = maxChainArgExcl;
                     MAX_CHAIN_SIZE_DEFAULT = maxChainArgDef;
@@ -39,9 +41,9 @@ public class Main {
                 System.out.println("Incorrect argument(s) for maximum angle count. Please, restart the program with integer argument.");
                 System.exit(1);
             }
-        } else if (args.length == 2) {
+        } else if (params.length == 2) {
             try {
-                int maxChainArgDef = Integer.parseInt(args[1]);
+                int maxChainArgDef = Integer.parseInt(params[1]);
                 if (maxChainArgDef > 0 && maxChainArgDef < 11) {
                     MAX_CHAIN_SIZE_EXCLUSIVE = -1;
                     MAX_CHAIN_SIZE_DEFAULT = maxChainArgDef;
@@ -56,7 +58,7 @@ public class Main {
         } else {
             MAX_CHAIN_SIZE_DEFAULT = 2;
             MAX_CHAIN_SIZE_EXCLUSIVE = -1;
-            System.out.println("No arguments for maximum angle count provided. Running with default value – 2.");
+            System.out.println("No arguments for maximum angle count provided. Running with default value: 2.");
         }
 
         File[] files = new File(INITFOLDER.toString()).listFiles();
