@@ -34,7 +34,7 @@ jobs:
         path: 'build/libs/*.jar'
 
     - name: 'Create Release'
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'ref/tags/v')
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -47,7 +47,7 @@ jobs:
         draft: false
         prerelease: false
     - name: 'Upload Release Asset'
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'ref/tags/v')
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
       env:
@@ -58,12 +58,12 @@ jobs:
         asset_name: bip-${{env.VERSION}}.jar
         asset_content_type: application/java-archive
     - name: 'Write Upload URL To File'
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'ref/tags/v')
       run: |
         echo "${{steps.create_release.outputs.upload_url}}" > upload_url.txt
 
     - name: 'Publish Upload URL'
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'ref/tags/v')
       uses: actions/upload-artifact@v2
       with:
         name: 'upload_url.txt'
@@ -95,25 +95,25 @@ jobs:
           name: 'bip-${{env.VERSION}}.jar'
           path: ./
       - name: 'Get Release URL'
-        if: startsWith(github.ref, 'v')
+        if: startsWith(github.ref, 'ref/tags/v')
         uses: actions/download-artifact@v2
         with:
           name: 'upload_url.txt'
       - name: 'Get Upload URL'
-        if: startsWith(github.ref, 'v')
+        if: startsWith(github.ref, 'ref/tags/v')
         run: |
           echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV    
       - name: 'Build Mac OS Image'
         run: |
           native-image --no-server --allow-incomplete-classpath --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:+TraceClassInitialization -H:+ReportExceptionStackTraces -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
-        if: success() && startsWith(github.ref, 'v')
+        if: ${{ success() }}() && startsWith(github.ref, 'ref/tags/v')
         uses: actions/upload-artifact@v2
         with:
           name: 'bip-${{env.VERSION}}-macOS'
           path: 'bip-${{env.VERSION}}'
       - name: 'Upload Mac OS Image Asset'
-        if: success() && startsWith(github.ref, 'v')
+        if: ${{ success() }}() && startsWith(github.ref, 'ref/tags/v')
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -161,23 +161,23 @@ jobs:
             call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
             ./graalvm-ce-java11-20.1.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
         - name: 'Get Release URL'
-          if: startsWith(github.ref, 'v')
+          if: startsWith(github.ref, 'ref/tags/v')
           uses: actions/download-artifact@v2
           with:
             name: 'upload_url.txt'
         - name: 'Get Upload URL'
-          if: startsWith(github.ref, 'v')
+          if: startsWith(github.ref, 'ref/tags/v')
           run: |
             echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
           shell: bash
         - name: 'Publish Windows Image'
-          if: success()
+          if: ${{ success() }}() && startsWith(github.ref, 'ref/tags/v')
           uses: actions/upload-artifact@v2
           with:
             name: 'bip-${{env.VERSION}}-windows.exe'
             path: 'bip-${{env.VERSION}}.exe'
         - name: 'Release Windows Image Asset'
-          if: startsWith(github.ref, 'v')
+          if: startsWith(github.ref, 'ref/tags/v')
           id: upload-release-asset
           uses: actions/upload-release-asset@v1
           env:
