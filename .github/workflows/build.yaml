@@ -28,10 +28,10 @@ jobs:
       run: | 
           echo "::set-env name=VERSION::$(./gradlew properties -q | grep "version:" | awk '{print $2}')"
     - name: 'Publish JAR'
-      uses: actions/upload-artifact@v2-preview
+      uses: actions/upload-artifact@v2
       with:
         name: 'bip-${{env.VERSION}}.jar'
-        path: /*.jar
+
     - name: 'Create Release'
       if: contains(github.ref, 'v')
       id: create_release
@@ -63,7 +63,7 @@ jobs:
 
     - name: 'Publish Upload URL'
       if: contains(github.ref, 'v')
-      uses: actions/upload-artifact@v2-preview
+      uses: actions/upload-artifact@v2
       with:
         name: 'upload_url.txt'
         path: 'upload_url.txt'
@@ -89,13 +89,13 @@ jobs:
         run: |
           echo "::set-env name=VERSION::$(./gradlew properties -q | grep "version:" | awk '{print $2}')"
       - name: 'Get JAR Artifact'
-        uses: actions/download-artifact@v2-preview
+        uses: actions/download-artifact@v2
         with:
           name: 'bip-${{env.VERSION}}.jar'
-          path: 'bip-${{env.VERSION}}.jar'
+          
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
-        uses: actions/download-artifact@v2-preview
+        uses: actions/download-artifact@v2
         with:
           name: 'upload_url.txt'
       - name: 'Get Upload URL'
@@ -107,7 +107,7 @@ jobs:
           native-image --no-server --no-fallback --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: success() && contains(github.ref, 'v')
-        uses: actions/upload-artifact@v2-preview
+        uses: actions/upload-artifact@v2
         with:
           name: 'bip-${{env.VERSION}}-macOS'
           path: 'bip-${{env.VERSION}}'
@@ -147,10 +147,10 @@ jobs:
             echo "::set-env name=VERSION::$(./gradlew properties -q | grep "version:" | awk '{print $2}')"
           shell: bash
         - name: 'Get JAR Artifact'
-          uses: actions/download-artifact@v2-preview
+          uses: actions/download-artifact@v2
           with:
             name: 'bip-${{env.VERSION}}.jar'
-            path: 'bip-${{env.VERSION}}.jar'
+      
         - name: 'Build Native Image'
           shell: cmd
           env:
@@ -160,7 +160,7 @@ jobs:
             ./graalvm-ce-java8-20.2.0/bin/native-image --no-server --no-fallback -H:Name=bip-${{env.VERSION}} --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
         - name: 'Get Release URL'
           if: contains(github.ref, 'v')
-          uses: actions/download-artifact@v2-preview
+          uses: actions/download-artifact@v2
           with:
             name: 'upload_url.txt'
         - name: 'Get Upload URL'
@@ -170,7 +170,7 @@ jobs:
           shell: bash
         - name: 'Publish Windows Image'
           if: success()
-          uses: actions/upload-artifact@v2-preview
+          uses: actions/upload-artifact@v2
           with:
             name: 'bip-${{env.VERSION}}-windows.exe'
             path: 'bip-${{env.VERSION}}.exe'
