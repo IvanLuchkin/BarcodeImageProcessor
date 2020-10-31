@@ -91,6 +91,7 @@ public class Main {
             System.out.println("Could not create result folder.");
         }
         processFiles(0, 0,"NO_RES_YET", "");
+        input.close();
     }
 
     public static void processFiles(int fileIndex, int counter, String lastResult, String prevFileType) {
@@ -150,35 +151,6 @@ public class Main {
                 System.out.println("Invalid scan result on " + file.getName() + ".");
                 break;
         }
-
-         /*
-        if (result.equals("Could not find a barcode on the image.")) {
-            switch (prevFileType) {
-                case "CHILD" :
-                    toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult + "_" + counter + ".jpg");
-                    break;
-                case "PARENT" :
-                    toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult  + ".jpg");
-                    break;
-            }
-            processFiles(++fileIndex, ++counter, lastBarcodeResult, "CHILD");
-        } else if(result.length() == 5) {
-            if (lastBarcodeResult.equals(result)) {
-                toBeRenamed.put(file, RESFOLDER.toString() + "/" + lastBarcodeResult  + ".jpg");
-                processFiles(++fileIndex, ++counter, lastBarcodeResult, "CHILD");
-            } else {
-                lastBarcodeResult = result;
-                executeTransaction();
-                toBeRenamed.clear();
-                toBeRenamed.put(file, RESFOLDER.toString() + "/_" + lastBarcodeResult + "_" + file.getName());
-                processFiles(++fileIndex, 0, lastBarcodeResult, "PARENT");
-            }
-        } else {
-            System.out.println("Invalid scan result. Please, review the source folder.");
-        }
-
-          */
-
     }
 
     private static void checkForIncorrectlyRenamed() {
