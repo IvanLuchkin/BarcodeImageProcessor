@@ -94,6 +94,8 @@ jobs:
         with:
           name: 'bip-${{env.VERSION}}.jar'
           path: ./build/libs
+      - name: 'Check target after download'
+        run: ls /Users/runner/work/BarcodeImageProcessor/BarcodeImageProcessor/build/libs
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
         uses: actions/download-artifact@v2
