@@ -106,7 +106,7 @@ jobs:
           echo "::set-env name=UPLOAD_URL::$(cat upload_url.txt)"
       - name: 'Build Mac OS Image'
         run: |
-          native-image --no-server --no-fallback --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
+          native-image --no-server --no-fallback --allow-incomplete-classpath -jar /app/bip-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: success() && contains(github.ref, 'v')
         uses: actions/upload-artifact@v2
