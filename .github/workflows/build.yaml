@@ -105,7 +105,7 @@ jobs:
           echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV    
       - name: 'Build Mac OS Image'
         run: |
-          native-image --no-server --allow-incomplete-classpath --no-fallback --initialize-at-run-time=com.github.jaiimageio.impl.common.PackageUtil -H:+ReportExceptionStackTraces -jar BarcodeImageProcessor-${{env.VERSION}}.jar
+          native-image --no-server --allow-incomplete-classpath --no-fallback --initialize-at-run-time=com.github.jaiimageio.impl.common.PackageUtil -H:+TraceClassInitialization -H:+ReportExceptionStackTraces -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: success() && startsWith(github.ref, 'v')
         uses: actions/upload-artifact@v2
