@@ -93,9 +93,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: 'bip-${{env.VERSION}}.jar'
-          path: ./build/libs
-      - name: 'Check target after download'
-        run: ls /Users/runner/work/BarcodeImageProcessor/BarcodeImageProcessor/build/libs
+          path: ./
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
         uses: actions/download-artifact@v2
@@ -104,14 +102,10 @@ jobs:
       - name: 'Get Upload URL'
         if: contains(github.ref, 'v')
         run: |
-          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
-      - name: 'Move to /jar dir'
-        run: cd build/libs    
-      - name: 'Check the contents of target folder'
-        run: ls
+          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV    
       - name: 'Build Mac OS Image'
         run: |
-          native-image --no-server --no-fallback -jar bip-${{env.VERSION}}.jar
+          native-image --no-server --no-fallback -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: success() && contains(github.ref, 'v')
         uses: actions/upload-artifact@v2
@@ -165,7 +159,7 @@ jobs:
             JAVA_HOME: ./graalvm-ce-java8-20.2.0
           run: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-            ./graalvm-ce-java8-20.2.0/bin/native-image --no-server --no-fallback -H:Name=bip-${{env.VERSION}} --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
+            ./graalvm-ce-java8-20.2.0/bin/native-image --no-server --no-fallback -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar bip-${{env.VERSION}}.jar
         - name: 'Get Release URL'
           if: contains(github.ref, 'v')
           uses: actions/download-artifact@v2
