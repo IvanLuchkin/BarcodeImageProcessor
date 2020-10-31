@@ -31,7 +31,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: 'bip-${{env.VERSION}}.jar'
-        path: 'bip-${{env.VERSION}}.jar'
+        path: 'build/libs/bip-${{env.VERSION}}.jar'
 
     - name: 'Create Release'
       if: contains(github.ref, 'v')
