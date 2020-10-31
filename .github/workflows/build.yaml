@@ -93,6 +93,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: 'bip-${{env.VERSION}}.jar'
+          path: ./app
           
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
@@ -151,6 +152,7 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: 'bip-${{env.VERSION}}.jar'
+            path: ./app
       
         - name: 'Build Native Image'
           shell: cmd
