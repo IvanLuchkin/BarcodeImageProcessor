@@ -31,7 +31,7 @@ jobs:
       uses: actions/upload-artifact@v2-preview
       with:
         name: 'bip-${{env.VERSION}}.jar'
-        path: libs/*.jar
+        path: build/libs/*.jar
     - name: 'Create Release'
       if: contains(github.ref, 'v')
       id: create_release
@@ -53,7 +53,7 @@ jobs:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
         upload_url: ${{steps.create_release.outputs.upload_url}}
-        asset_path: libs/bip-${{env.VERSION}}.jar
+        asset_path: build/libs/bip-${{env.VERSION}}.jar
         asset_name: bip-${{env.VERSION}}.jar
         asset_content_type: application/java-archive
     - name: 'Write Upload URL To File'
@@ -92,6 +92,7 @@ jobs:
         uses: actions/download-artifact@v2-preview
         with:
           name: 'bip-${{env.VERSION}}.jar'
+          path: 'build/libs/bip-${{env.VERSION}}.jar'
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
         uses: actions/download-artifact@v2-preview
@@ -149,6 +150,7 @@ jobs:
           uses: actions/download-artifact@v2-preview
           with:
             name: 'bip-${{env.VERSION}}.jar'
+            path: 'build/libs/bip-${{env.VERSION}}.jar'
         - name: 'Build Native Image'
           shell: cmd
           env:
