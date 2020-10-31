@@ -21,7 +21,7 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-    - name: 'Get Version Number'
+    - name: 'Get Version'
       run: | 
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
     - name: 'Publish JAR'
