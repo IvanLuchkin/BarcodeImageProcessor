@@ -25,7 +25,7 @@ dependencies {
 }
 
 group = 'BIP'
-version = '1.6'
+version = '1.7'
 description = 'bip'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
