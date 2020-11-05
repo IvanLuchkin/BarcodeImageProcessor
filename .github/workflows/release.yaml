@@ -2,7 +2,6 @@ name: Release BarcodeImageProcessor
 
 on:
   push:
-    branches: [ master ]
     tags:
       - v*
   pull_request:
@@ -141,7 +140,7 @@ jobs:
           graalvm-ce-java8-20.1.0\bin\gu.cmd install native-image
       - name: 'Set up Visual C Build Tools Workload for Visual Studio 2010 Build Tools'
         run: |
-          choco install vcredist2010
+          choco install windows-sdk-7.1
       - name: 'Get Version Number'
         run: |
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
@@ -157,7 +156,7 @@ jobs:
         env:
           JAVA_HOME: ./graalvm-ce-java8-20.1.0
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2010\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
           ./graalvm-ce-java8-20.1.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Get Release URL'
 
