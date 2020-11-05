@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 8
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 8
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
@@ -73,14 +73,14 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 8
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 8
       - name: 'Setup GraalVM Environment'
         uses: DeLaGuardo/setup-graalvm@2.0
         with:
-          graalvm-version: '20.2.0.java8'
+          graalvm-version: '20.1.0.java8'
       - name: 'Install Native Image Plugin'
         run: |
           gu install native-image
@@ -103,7 +103,7 @@ jobs:
           echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
       - name: 'Build Mac OS Image'
         run: |
-          native-image --no-server --allow-incomplete-classpath --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:+TraceClassInitialization -H:+ReportExceptionStackTraces -jar BarcodeImageProcessor-${{env.VERSION}}.jar
+          native-image --no-server --allow-incomplete-classpath --no-fallback -H:+TraceClassInitialization -H:+ReportExceptionStackTraces -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Publish Mac OS Image'
         if: ${{ success() }}
         uses: actions/upload-artifact@v2
