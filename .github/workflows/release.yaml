@@ -138,11 +138,14 @@ jobs:
       - name: 'Install Native Image'
         run: |
           graalvm-ce-java8-20.1.0\bin\gu.cmd install native-image
-      - name: 'Uninstall VC 2010'
+      - name: Uninstall Installed MS VC++ Redistributables
         shell: powershell
         run: |
-          Invoke-WebRequest -Method Get -Uri http://aka.ms/vs2010uninstall -OutFile VS2010_Uninstall-RTM.ENU.exe -UseBasicParsing
-          Start-Process -Wait VS2010_Uninstall-RTM.ENU.exe -ArgumentList "/q", "/norestart", "/features"
+          $apps = Get-WmiObject -Class Win32_Product -Filter "Name LIKE 'Microsoft Visual C++ 20%% Redistributable%'"
+          foreach ($app in $apps) {
+            echo $app
+            $app.Uninstall()
+          }
       - name: 'Install Windows 7.1 SDK'
         shell: powershell
         run: |
