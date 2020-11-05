@@ -138,7 +138,12 @@ jobs:
       - name: 'Install Native Image'
         run: |
           graalvm-ce-java8-20.1.0\bin\gu.cmd install native-image
-      - name: Install Windows 7.1 SDK
+      - name: 'Uninstall VC 2010'
+                shell: powershell
+                run: |
+                  Invoke-WebRequest -Method Get -Uri http://aka.ms/vs2010uninstall -OutFile VS2010_Uninstall-RTM.ENU.exe -UseBasicParsing
+                  Start-Process -Wait VS2010_Uninstall-RTM.ENU.exe -ArgumentList "/q", "/norestart", "/features"
+      - name: 'Install Windows 7.1 SDK'
         shell: powershell
         run: |
           Invoke-WebRequest -Method Get -Uri https://www.microsoft.com/en-us/download/confirmation.aspx?id=8279 -OutFile winsdk_web.exe -UseBasicParsing
