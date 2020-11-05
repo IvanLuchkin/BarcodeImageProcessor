@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.jai-imageio:jai-imageio-core:1.4.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/jai-imageio/jai-imageio-core/1.4.0/jai-imageio-core-1.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

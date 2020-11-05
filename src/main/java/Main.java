@@ -3,8 +3,9 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.GenericMultipleBarcodeReader;
 import com.google.zxing.multi.MultipleBarcodeReader;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -204,7 +205,7 @@ public class Main {
             if (name.contains("!")) return name.substring(name.indexOf('!') + 1, 6);
             BinaryBitmap imageBitmap = new BinaryBitmap(
                     new HybridBinarizer(
-                            new BufferedImageLuminanceSource(ImageIO.read(file.toURI().toURL()))));
+                            new BufferedImageLuminanceSource(Imaging.getBufferedImage(file))));
             ArrayList<Result> results = new ArrayList<>(1);
             Reader reader = new MultiFormatReader();
 
@@ -240,7 +241,7 @@ public class Main {
 
         } catch (NotFoundException nfe) {
             return "Could not find a barcode on the image.";
-        } catch (IOException ioe) {
+        } catch (IOException | ImageReadException ioe) {
             System.out.println("File reading issue.");
             return "File reading issue.";
         }
