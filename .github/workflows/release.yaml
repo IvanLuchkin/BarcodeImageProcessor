@@ -141,7 +141,7 @@ jobs:
           graalvm-ce-java8-20.1.0\bin\gu.cmd install native-image
       - name: 'Set up Visual C Build Tools Workload for Visual Studio 2010 Build Tools'
         run: |
-          choco install vcexpress2010
+          choco install vcredist2010
       - name: 'Get Version Number'
         run: |
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
