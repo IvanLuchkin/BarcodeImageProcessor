@@ -146,11 +146,9 @@ jobs:
             echo $app
             $app.Uninstall()
           }
-      - name: 'Install Windows 7.1 SDK'
-        shell: powershell
+      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2010 Build Tools'
         run: |
-          Invoke-WebRequest -Method Get -Uri https://www.microsoft.com/en-us/download/confirmation.aspx?id=8279 -OutFile winsdk_web.exe -UseBasicParsing
-          Start-Process -Wait winsdk_web.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
+          choco install -d --no-progress kb2519277 windows-sdk-7.1
       - name: 'Get Version Number'
         run: |
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
