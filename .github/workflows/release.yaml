@@ -157,7 +157,7 @@ jobs:
         env:
           JAVA_HOME: ./graalvm-ce-java8-20.1.0
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2010\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           ./graalvm-ce-java8-20.1.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Get Release URL'
 
