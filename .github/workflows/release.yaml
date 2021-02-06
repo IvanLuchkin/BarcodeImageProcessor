@@ -67,61 +67,6 @@ jobs:
           name: 'upload_url.txt'
           path: 'upload_url.txt'
 
-  build-macos-image:
-    needs: [build-jar-job]
-    name: 'Build macOS Image'
-    runs-on: macOS-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 8
-      - name: 'Setup GraalVM Environment'
-        uses: DeLaGuardo/setup-graalvm@2.0
-        with:
-          graalvm-version: '20.1.0.java8'
-      - name: 'Install Native Image Plugin'
-        run: |
-          gu install native-image
-      - name: 'Get Version Number'
-        run: |
-          echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
-      - name: 'Get JAR Artifact'
-        uses: actions/download-artifact@v2
-        with:
-          name: 'BarcodeImageProcessor-${{env.VERSION}}.jar'
-          path: ./
-      - name: 'Get Release URL'
-
-        uses: actions/download-artifact@v2
-        with:
-          name: 'upload_url.txt'
-      - name: 'Get Upload URL'
-
-        run: |
-          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
-      - name: 'Build Mac OS Image'
-        run: |
-          native-image --no-server --allow-incomplete-classpath --no-fallback -H:+TraceClassInitialization -H:+ReportExceptionStackTraces -jar BarcodeImageProcessor-${{env.VERSION}}.jar
-      - name: 'Publish Mac OS Image'
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: 'BarcodeImageProcessor-${{env.VERSION}}-macOS'
-          path: ./
-      - name: 'Upload Mac OS Image Asset'
-        if: ${{ success() }}
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ env.UPLOAD_URL }}
-          asset_name: BarcodeImageProcessor-${{env.VERSION}}-macOS
-          asset_path: BarcodeImageProcessor-${{env.VERSION}}
-          asset_content_type: application/octet-stream
-
   build-windows-image:
     needs: [build-jar-job]
     name: 'Build Windows Image'
@@ -131,13 +76,13 @@ jobs:
         uses: actions/checkout@v1
       - name: 'Download GraalVM'
         run: |
-          Invoke-RestMethod -Uri https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.1.0/graalvm-ce-java8-windows-amd64-20.1.0.zip -OutFile 'graal.zip'
+          Invoke-RestMethod -Uri https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.0.0/graalvm-ce-java8-windows-amd64-21.0.0.zip -OutFile 'graal.zip'
       - name: 'Install GraalVM'
         run: |
           Expand-Archive -path 'graal.zip' -destinationpath '.'
       - name: 'Install Native Image'
         run: |
-          graalvm-ce-java8-20.1.0\bin\gu.cmd install native-image
+          graalvm-ce-java8-21.0.0\bin\gu.cmd install native-image
       - name: Uninstall Installed MS VC++ Redistributables
         shell: powershell
         run: |
@@ -162,10 +107,10 @@ jobs:
       - name: 'Build Native Image'
         shell: cmd
         env:
-          JAVA_HOME: ./graalvm-ce-java8-20.1.0
+          JAVA_HOME: ./graalvm-ce-java8-21.0.0
         run: |
           call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-          ./graalvm-ce-java8-20.1.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
+          ./graalvm-ce-java8-21.0.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Get Release URL'
 
         uses: actions/download-artifact@v2
