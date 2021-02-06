@@ -91,9 +91,9 @@ jobs:
             echo $app
             $app.Uninstall()
           }
-      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2010 Build Tools'
+      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools'
         run: |
-          choco install -d --no-progress windows-sdk-7.1 kb2519277
+          choco install -d --no-progress visualstudio2017-workload-vctools
       - name: 'Get Version Number'
         run: |
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
