@@ -2,8 +2,11 @@
   <library name="Gradle: com.google.zxing:javase:3.4.1">
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/com/google/zxing/javase/3.4.1/javase-3.4.1.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.zxing/javase/3.4.1/4eddd2ff030c0d4f368d3cc00131ff6a58bc88e0/javase-3.4.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.zxing/javase/3.4.1/82402e8a21fe228e10b6d462dcb26f22e9957a4d/javase-3.4.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

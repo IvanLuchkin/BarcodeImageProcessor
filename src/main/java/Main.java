@@ -10,6 +10,13 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.GenericMultipleBarcodeReader;
 import com.google.zxing.multi.MultipleBarcodeReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 
@@ -19,7 +26,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 
 public class Main {
 
@@ -116,13 +122,13 @@ public class Main {
         }
     }
 
-    public static void main(String...args) {
+    public static void main(String... args) {
         initParams();
         filterFiles();
         checkForIncorrectlyRenamed();
         sortFiles();
         createResFolder();
-        System.out.println(processFiles(0, 0,"NO_RES_YET", "NONE"));
+        System.out.println(processFiles(0, 0, "NO_RES_YET", "NONE"));
     }
 
     public static void analyzeAngleCounter(int counter, String lastBarcodeResult) {
@@ -141,12 +147,12 @@ public class Main {
     }
 
     public static String analyzeScanResult(int fileIndex, int counter, String lastBarcodeResult, String newResult, String prevFileType, File file) {
-        switch(newResult.length()) {
-            case(38) :
+        switch (newResult.length()) {
+            case (38):
                 analyzePreviousFile(prevFileType, lastBarcodeResult, file, counter);
                 processFiles(++fileIndex, ++counter, lastBarcodeResult, "ANGLE");
                 break;
-            case(5) :
+            case (5):
                 if (lastBarcodeResult.equals(newResult)) {
                     analyzePreviousFile(prevFileType, lastBarcodeResult, file, counter);
                     processFiles(++fileIndex, ++counter, lastBarcodeResult, "ANGLE");
@@ -159,7 +165,7 @@ public class Main {
                     processFiles(++fileIndex, 0, lastBarcodeResult, "BARCODE");
                 }
                 break;
-            default :
+            default:
                 System.out.println("Invalid scan result on " + file.getName() + ".");
                 System.exit(1);
         }
@@ -168,13 +174,13 @@ public class Main {
 
     public static void analyzePreviousFile(String prevFileType, String lastBarcodeResult, File file, int counter) {
         switch (prevFileType) {
-            case "ANGLE" :
+            case "ANGLE":
                 toBeRenamed.put(file, RES_FOLDER.toString() + "/" + lastBarcodeResult + "_" + counter + ".jpg");
                 break;
-            case "BARCODE" :
-                toBeRenamed.put(file, RES_FOLDER.toString() + "/" + lastBarcodeResult  + ".jpg");
+            case "BARCODE":
+                toBeRenamed.put(file, RES_FOLDER.toString() + "/" + lastBarcodeResult + ".jpg");
                 break;
-            case "NONE" :
+            case "NONE":
                 System.out.println("The first photo in the folder is not a barcode photo.");
                 break;
         }
