@@ -76,13 +76,13 @@ jobs:
         uses: actions/checkout@v1
       - name: 'Download GraalVM'
         run: |
-          Invoke-RestMethod -Uri https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.0.0/graalvm-ce-java8-windows-amd64-21.0.0.zip -OutFile 'graal.zip'
+          Invoke-RestMethod -Uri https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.0.0/graalvm-ce-java11-windows-amd64-21.0.0.zip -OutFile 'graal.zip'
       - name: 'Install GraalVM'
         run: |
           Expand-Archive -path 'graal.zip' -destinationpath '.'
       - name: 'Install Native Image'
         run: |
-          graalvm-ce-java8-21.0.0\bin\gu.cmd install native-image
+          graalvm-ce-java11-21.0.0\bin\gu.cmd install native-image
       - name: Uninstall Installed MS VC++ Redistributables
         shell: powershell
         run: |
@@ -107,10 +107,10 @@ jobs:
       - name: 'Build Native Image'
         shell: cmd
         env:
-          JAVA_HOME: ./graalvm-ce-java8-21.0.0
+          JAVA_HOME: ./graalvm-ce-java11-21.0.0
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          ./graalvm-ce-java8-21.0.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
+          ./graalvm-ce-java11-21.0.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
       - name: 'Get Release URL'
 
         uses: actions/download-artifact@v2
