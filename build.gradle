@@ -1,57 +1,73 @@
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "edu.sc.seis.launch4j:launch4j:2.4.9"
-    }
-}
-
 plugins {
     id 'java'
     id 'maven-publish'
     id 'idea'
+    id 'application'
     id 'edu.sc.seis.launch4j' version '2.4.9'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id "org.beryx.runtime" version "1.12.1"
 }
+
+javafx {
+    version = "15"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+launch4j {
+    mainClassName = 'MainWindow'
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'edu.sc.seis.launch4j'
 
 repositories {
     mavenLocal()
+    mavenCentral()
     jcenter()
     maven {
         url = uri('https://repo1.maven.org/maven2/com/google/zxing/javase/3.4.1/javase-3.4.1.jar')
     }
-
-    maven {
-        url = uri('https://repo.maven.apache.org/maven2/')
-    }
 }
 
-launch4j {
-    mainClassName = 'Main'
+group = 'BIP'
+version = '1.9'
+description = 'bip'
+mainClassName = 'MainWindow'
+
+sourceCompatibility = 15
+targetCompatibility = 15
+
+java {
+    modularity.inferModulePath = true
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 dependencies {
     implementation 'org.apache.commons:commons-imaging:1.0-alpha1'
     implementation 'com.google.zxing:javase:3.4.1'
     implementation 'com.google.zxing:core:3.4.1'
-}
+    implementation 'org.controlsfx:controlsfx:9.0.0'
+    implementation 'org.openjfx:javafx:15'
 
-group = 'BIP'
-version = '1.9'
-description = 'bip'
-java.sourceCompatibility = JavaVersion.VERSION_11
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+    compile 'org.openjfx:javafx-base:15'
+    compile 'org.openjfx:javafx-graphics:15'
+    compile 'org.openjfx:javafx-controls:15'
+    compile 'org.openjfx:javafx-fxml:15'
+    compile 'org.openjfx:javafx-swing:15'
+    compile 'org.openjfx:javafx-media:15'
+    compile 'org.openjfx:javafx-web:15'
+    compile 'org.controlsfx:controlsfx:9.0.0'
 }
 
 jar {
     manifest {
         attributes(
                 'Class-Path': configurations.runtimeClasspath.files.collect { it.name }.join(' '),
-                'Main-Class': 'Main'
+                'Main-Class': 'MainWindow'
         )
     }
     from {
@@ -59,5 +75,14 @@ jar {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'edu.sc.seis.launch4j'
+runtime {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    modules = ['java.desktop', 'java.scripting', 'java.logging', 'java.xml', 'jdk.jfr', 'jdk.unsupported']
+}
+
+tasks.runtime.doLast {
+    copy {
+        from('src/main/resources')
+        into("$buildDir/image/bin")
+    }
+}
