@@ -69,7 +69,7 @@ public class MainWindow extends Application {
 
     public void browse(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File("src"));
+        directoryChooser.setInitialDirectory(new File("C:\\Users\\User\\.jdks\\openjdk-15.0.2"));
         File selectedDirectory = directoryChooser.showDialog(scene.getWindow());
         String selectedDirPath = selectedDirectory.getAbsolutePath();
         initFolderInput.setText(selectedDirPath);

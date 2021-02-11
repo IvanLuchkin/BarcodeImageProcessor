@@ -8,18 +8,15 @@ plugins {
     id "org.beryx.runtime" version "1.12.1"
 }
 
-javafx {
-    version = "15"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
-}
-
-launch4j {
-    mainClassName = 'MainWindow'
-}
+group = 'BIP'
+version = '1.9'
+description = 'bip'
+mainClassName = 'Launcher'
 
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'edu.sc.seis.launch4j'
+apply plugin: 'org.openjfx.javafxplugin'
 
 repositories {
     mavenLocal()
@@ -30,11 +27,6 @@ repositories {
     }
 }
 
-group = 'BIP'
-version = '1.9'
-description = 'bip'
-mainClassName = 'MainWindow'
-
 sourceCompatibility = 15
 targetCompatibility = 15
 
@@ -44,6 +36,12 @@ java {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+javafx {
+    version = "15"
+    modules = ['javafx.controls', 'javafx.base', 'javafx.graphics', 'javafx.fxml',
+               'javafx.swing', 'javafx.media', 'javafx.web']
 }
 
 dependencies {
@@ -67,7 +65,7 @@ jar {
     manifest {
         attributes(
                 'Class-Path': configurations.runtimeClasspath.files.collect { it.name }.join(' '),
-                'Main-Class': 'MainWindow'
+                'Main-Class': 'Launcher'
         )
     }
     from {
@@ -75,9 +73,18 @@ jar {
     }
 }
 
+launch4j {
+    mainClassName = 'Launcher'
+    bundledJrePath = 'C:\\Users\\User\\.jdks\\openjdk-15.0.2'
+    bundledJre64Bit = true
+    jreMinVersion = 15
+    bundledJreAsFallback = false
+    jdkPreference = 'jdkOnly'
+}
+
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-    modules = ['java.desktop', 'java.scripting', 'java.logging', 'java.xml', 'jdk.jfr', 'jdk.unsupported']
+
 }
 
 tasks.runtime.doLast {
