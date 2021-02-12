@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: javafx-fxml-15.jar javafx-fxml-15-linux.jar javafx-web-15.ja
- r javafx-controls-15.jar javafx-controls-15-linux.jar javafx-swing-15.j
- ar javafx-media-15.jar javafx-graphics-15.jar javafx-graphics-15-linux.
- jar javafx-base-15.jar javafx-base-15-linux.jar controlsfx-9.0.0.jar co
- mmons-imaging-1.0-alpha1.jar javase-3.4.1.jar core-3.4.1.jar jcommander
- -1.78.jar jai-imageio-core-1.4.0.jar
-Main-Class: MainWindow
-

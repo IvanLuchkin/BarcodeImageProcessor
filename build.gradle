@@ -75,6 +75,53 @@ jar {
     }
 }
 
+runtime {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    jpackage {
+        mainClass = 'Launcher'
+        mainJar = 'lib/' + project.tasks[JavaPlugin.JAR_TASK_NAME].outputs.files.getSingleFile().name
+        //targetPlatform('windows-x64', "${buildDir}/${jreDistributionPath}")
+        appVersion = version
+        installerName = 'BIP-installer-win64'
+        installerOutputDir = file("$buildDir/jpackage-installer")
+        installerType = "msi"
+        installerOptions += ['--resource-dir', "src/main/resources"]
+        installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+    }
+}
+
+tasks.runtime.doLast {
+    copy {
+        from('src/main/resources')
+        into("$buildDir/image/bin")
+    }
+}
+
+/*
+ext.l4jCmdPath = project.hasProperty( 'l4jCmdPath' ) ? project.getProperty( 'l4jCmdPath' ) : 'launch4j' // default requires launch4j on the path
+ext.l4jxmlFileName = 'launch4j.xml'
+ext.l4jOutputBaseFileName = "${rootProject.applicationName}-${version}"
+def folderName = "${l4jOutputBaseFileName}"
+ext.l4jOutputDir = "launch4j/${folderName}"  // path is relative to buildDir
+ext.bundledJrePath = './jre'               // path is relative to launch4j.outputDir and must start with '.'
+
+ext.jreBuildNumber = 281 // Default to version 74 of the Oracle Java 8 JRE
+
+// allow ext.jreBuildNumber to be overridden by the gradle command line
+// e.g. gradle createExe -PjreBuildOverride=40
+//   or gradle distSfx -PjreBuildOverride=40
+//   or gradle extraProperties -PjreBuildOverride=40
+if( project.hasProperty( 'jreBuildOverride' ) ) {
+    project.jreBuildNumber = Integer.parseInt( jreBuildOverride )
+}
+
+ext.jreTargetVersion = "1.8.0_${jreBuildNumber}"   // target JRE version   (e.g. 1.8.0_74)
+ext.jrePriorVersion  = "1.8.0_${jreBuildNumber - 1}" // target JRE version-1 (e.g. 1.8.0_73)
+// these are used by the zip and distribution tasks after launch4j has run
+ext.jreArchiveSourcePath = 'jre' // path is relative to the root of this subproject
+ext.jreDistributionPath = "$l4jOutputDir/$bundledJrePath"
+ext.win64ZipBaseFileName = "${l4jOutputBaseFileName}"
+
 launch4j {
     mainClassName = 'Launcher'
     cmdLine = project.l4jCmdPath
@@ -166,3 +213,79 @@ tasks.runtime.doLast {
         into("$buildDir/image/bin")
     }
 }
+
+tasks.runtime.dependsOn(tasks.extractWin64Jre)
+
+task deleteFatJdk(type: Delete) {
+    delete "$buildDir/launch4j/Barcode Image Processor-$version/jre"
+}
+
+tasks.deleteFatJdk.dependsOn(tasks.runtime)
+
+task copyCutDownJreToL4j(type: Copy) {
+    from "$buildDir/image/BarcodeImageProcessor-windows-x64"
+    into "$buildDir/launch4j/Barcode Image Processor-$version/jre"
+}
+
+tasks.copyCutDownJreToL4j.dependsOn(tasks.deleteFatJdk)
+
+
+task zipWin64Distribution(type: Zip) {
+    def src = "${buildDir}/launch4j"
+    from src
+    exclude "${folderName}/${launch4j.xmlFileName}"
+    baseName = win64ZipBaseFileName
+    extension = 'zip'
+    // explicitly set the archiveName rather than using the default which appends the version
+    archiveName = baseName + '.' + extension
+    group = 'Windows Distribution'
+    description = 'Generates the 64-bit Windows zip file distribution.'
+    dependsOn { [ "createExe", "copyCutDownJreToL4j" ] }
+}
+
+task createWin64sfxInstaller(type: FileConcatTask) {
+    // First source file MUST be unzipsfx-x64.exe which is extracted directly from unzipsfx.zip.
+    // Second source file is the output of zipWin64Distribution
+    // Note that the zipTree call is wrapped in closure so that configuration is only resolved at execution time.
+    source = files(
+            ( { zipTree('unzipsfx/unzipsfx.zip').matching { include 'unzipsfx-x64.exe' } } ),
+            "${zipWin64Distribution.archivePath}"
+    )
+    destination = "${zipWin64Distribution.archivePath}".replace('.zip', '.exe')
+    doLast() {
+        println "Generated self-extracting zip installer ${getDestination()}"
+    }
+
+    group = 'Windows Distribution'
+    description = 'Generates the 64-bit Windows self-extracting installer.'
+    dependsOn zipWin64Distribution
+}
+
+task distSfx {
+    group = 'Windows Distribution'
+    description = 'Primary task to be invoked for creating the self-extracting installer with launch4j and subsequent build steps.'
+    dependsOn createWin64sfxInstaller
+}
+
+class FileConcatTask extends SourceTask {
+    private destination
+    @OutputFile File getDestination() { project.file(destination) }
+    void setDestination(destination) { this.destination = destination }
+
+    @TaskAction
+    void doBinaryFileConcat() {
+        logInfo 'Concatenating:'
+        getDestination().withOutputStream { out ->
+            getSource().files.each {
+                logInfo("  +-<<--- ${it.name}")
+                it.withInputStream { out << it }
+            }
+        }
+        logInfo '  |'
+        logInfo "  +--->>> ${getDestination()}"
+    }
+
+    public void logInfo(String msg) {
+        getLogger().info(msg)
+    }
+}*/
