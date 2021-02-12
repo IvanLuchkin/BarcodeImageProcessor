@@ -4,18 +4,20 @@ plugins {
     id 'idea'
     id 'application'
     id 'edu.sc.seis.launch4j' version '2.4.9'
+    id 'org.beryx.runtime' version '1.12.1'
     id 'org.openjfx.javafxplugin' version '0.0.8'
-    id "org.beryx.runtime" version "1.12.1"
 }
 
 group = 'BIP'
 version = '1.9'
 description = 'bip'
 mainClassName = 'Launcher'
+applicationName = "Barcode Image Processor"
 
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'edu.sc.seis.launch4j'
+apply plugin: 'org.beryx.runtime'
 apply plugin: 'org.openjfx.javafxplugin'
 
 repositories {
@@ -75,16 +77,87 @@ jar {
 
 launch4j {
     mainClassName = 'Launcher'
-    bundledJrePath = 'C:\\Users\\User\\.jdks\\openjdk-15.0.2'
+    cmdLine = project.l4jCmdPath
+    xmlFileName = project.l4jxmlFileName
+    mainClassName = project.mainClassName
+    outputDir = project.l4jOutputDir
+    outfile = "${l4jOutputBaseFileName}.exe"
+    jar = 'lib/' + project.tasks[JavaPlugin.JAR_TASK_NAME].outputs.files.getSingleFile().name   // path is relative to outputDir
+    //icon = '../../../../../platform/windows/resources/icons/vZomeLogo.ico'  // path is relative to outputDir
+    //jreMaxVersion = project.jreTargetVersion
+    //jreMinVersion = project.jrePriorVersion
+    bundledJrePath = project.bundledJrePath // path is relative to launch4j.outputDir
     bundledJre64Bit = true
-    jreMinVersion = 15
-    bundledJreAsFallback = false
-    jdkPreference = 'jdkOnly'
+    //jdkPreference = 'jdkOnly' // default is 'preferJre'
+    jreRuntimeBits = '64'
+
+    //opt = '-Xmx3072M'
+    // Most of the rootProject.jvmArgs have apple in the name. Exclude those...
+    //rootProject.project('desktop').jvmArgs.each { entry ->
+      //  if(!entry.key.contains("apple.")) {
+        //    opt = opt + " -D${entry.key}=${entry.value}"
+       // }
+    //}
+    cmdLine = ''
+    def sp = ''
+    //rootProject.project('desktop').vzomeArgs.each { entry ->
+       // cmdLine = cmdLine + "${sp}${entry}"
+      //  sp = ' '
+   // }
+
+    // Several of the plugin property names don't exactly match the corresponding XML element.
+    version = project.version
+    textVersion = project.version
+    productName = rootProject.name
+    internalName = rootProject.name
+}
+
+// msg is only displayed if the gradle logging level is set with command line parameter '--info' or '--debug'
+// so use logInfo instead of println
+def logInfo(msg) {
+    getLogger().info msg
+}
+
+task cleanJre {
+    outputs.upToDateWhen {
+        return !( new File(project.jreDistributionPath).exists() );
+    }
+    doLast() {
+        delete project.jreDistributionPath
+        logInfo "Deleting JRE distribution directory: ${jreDistributionPath}"
+    }
+    group = 'Build'
+    description = "Removes the JRE distribution directory."
+}
+// This dependency is not really needed as long as jreDistributionPath is under $BuildDir but it doesn't hurt.
+clean.dependsOn cleanJre
+
+task cleanDistributions {
+    def folder = "${buildDir}/distributions"
+    outputs.upToDateWhen {
+        return !( new File(folder).exists() );
+    }
+    doLast() {
+        delete folder
+        logInfo "Deleting installer distribution directory: ${folder}"
+    }
+    group = 'Build'
+    description = "Removes the installer distribution directory."
+}
+// This dependency is not really needed as long as folder is under $BuildDir but it doesn't hurt.
+clean.dependsOn cleanDistributions
+
+task extractWin64Jre(type: Sync) {
+    def src = "${jreArchiveSourcePath}/jdk15.zip"
+    def dst = "${buildDir}/${jreDistributionPath}"
+    from zipTree(src)
+    into dst
+    group = 'Windows Distribution'
 }
 
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-
+    targetPlatform('windows-x64', "${buildDir}/${jreDistributionPath}")
 }
 
 tasks.runtime.doLast {
