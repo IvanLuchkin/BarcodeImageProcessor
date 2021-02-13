@@ -120,7 +120,7 @@ public class MainWindow extends Application {
 
     public void browse() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+        directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         File selectedDirectory = directoryChooser.showDialog(scene.getWindow());
         String selectedDirPath = selectedDirectory.getAbsolutePath();
         initFolderInput.setText(selectedDirPath);
