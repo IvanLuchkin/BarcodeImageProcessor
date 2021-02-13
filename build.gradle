@@ -78,12 +78,18 @@ jar {
 
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    modules = ['javafx.controls', 'javafx.base', 'javafx.graphics', 'javafx.fxml',
+               'javafx.swing', 'javafx.media', 'javafx.web']
     jpackage {
 
         jpackageImage {
             imageDir = file("$buildDir/jpackage/BarcodeImageProcessor")
             //resourceDir = file("src/main/resources")
             //imageOptions += ['--verbose']
+        }
+        launcher {
+            runInBinDir = true
+            noConsole = true
         }
         def currentOs = org.gradle.internal.os.OperatingSystem.current()
         jpackageHome = "${JAVA_HOME}"
@@ -95,11 +101,11 @@ runtime {
         installerOutputDir = file("$buildDir/jpackage-installer")
         //installerOptions += ['--resource-dir', "$buildDir/resources/main"]
         if (currentOs.windows) {
-            jvmArgs += ['-Dsun.java2d.d3d=false']
+           // jvmArgs += ['-Dsun.java2d.d3d=false']
             targetPlatform('windows-x64', "${JAVA_HOME}")
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut',
-                                 '--app-image', "$buildDir/jpackage/BarcodeImageProcessor"
-                                 , '--resource-dir', "$buildDir/jpackage/BarcodeImageProcessor/runtime/bin"]
+                                 '--app-image', "$buildDir/jpackage/BarcodeImageProcessor"]
+            //installerOptions += ['--resource-dir', "$buildDir/jpackage/BarcodeImageProcessor/runtime/bin"]
             targetPlatformName = 'windows-x64'
             installerType = 'msi'
         } else if (currentOs.linux) {
@@ -114,6 +120,16 @@ tasks.jpackageImage.doLast {
     copy {
         from('src/main/resources')
         into("$buildDir/jpackage/BarcodeImageProcessor/runtime/bin")
+    }
+    copy {
+        from("$buildDir/jpackage/BarcodeImageProcessor/runtime/bin")
+        include("zip.dll")
+        into("$buildDir/jpackage/BarcodeImageProcessor")
+    }
+    copy {
+        from("$buildDir/jpackage/BarcodeImageProcessor")
+        include("/app/*")
+        into("$buildDir/jpackage/BarcodeImageProcessor/runtime")
     }
 }
 
