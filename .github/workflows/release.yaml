@@ -27,7 +27,7 @@ jobs:
         run: choco install gawk
       - name: 'Get Build Version Number'
         run: |
-          echo "VERSION=$(gradlew properties -q | findstr "version:" | gawk '{print $2}')" >> $GITHUB_ENV
+          echo "VERSION=$(./gradlew properties -q | findstr "version:" | gawk '{print $2}')" >> $GITHUB_ENV
       - name: 'Publish Windows Installer'
         uses: actions/upload-artifact@v2
         with:
