@@ -60,6 +60,7 @@ public class MainWindow extends Application {
     private static int MAX_CHAIN_SIZE_EXCLUSIVE;
     private static final Map<File, String> toBeRenamed = new HashMap<>();
     private static final Map<ExitCode, String> MESSAGES = new HashMap<>();
+
     static {
         MESSAGES.put(ExitCode.TOO_MANY_FAILED_SCANS, "Too many failed scans");
         MESSAGES.put(ExitCode.INVALID_SCAN_RESULT, "Invalid scan result");
@@ -67,6 +68,7 @@ public class MainWindow extends Application {
         MESSAGES.put(ExitCode.INVALID_FIRST_FILE, "The first image is not barcode image");
         MESSAGES.put(ExitCode.MORE_ANGLES_REQUIRED, "First product has more angles than specified");
     }
+
     @FXML
     private TextField initFolderInput;
     @FXML
@@ -105,8 +107,8 @@ public class MainWindow extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/gui/"  + fxml + ".fxml"));
-        System.out.println(MainWindow.class.getResource("/gui/"  + fxml + ".fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/gui/" + fxml + ".fxml"));
+        System.out.println(MainWindow.class.getResource("/gui/" + fxml + ".fxml"));
         return fxmlLoader.load();
     }
 
@@ -173,7 +175,7 @@ public class MainWindow extends Application {
             }
 
             public ExitCode analyzeScanResult(int fileIndex, int counter, String lastBarcodeResult,
-                                                            String newResult, String prevFileType, File file) {
+                                              String newResult, String prevFileType, File file) {
                 switch (newResult.length()) {
                     case (38):
                         ExitCode res = analyzePreviousFile(prevFileType, lastBarcodeResult, file, counter);
