@@ -8,31 +8,30 @@ on:
     branches: [ master ]
 
 jobs:
-  build-jar-job:
-    name: 'Build JAR'
-    runs-on: ubuntu-latest
+  build-installer-job:
+    name: 'Build Installer'
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 15
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 15
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew jpackage
       - name: 'Get Version Number'
         run: |
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
-      - name: 'Publish JAR'
+      - name: 'Publish Installer'
         uses: actions/upload-artifact@v2
         with:
-          name: 'BarcodeImageProcessor-${{env.VERSION}}.jar'
-          path: 'build/libs/*.jar'
+          name: 'BarcodeImageProcessor-${{env.VERSION}}.msi'
+          path: 'build/jpackage-installer/*.msi'
 
       - name: 'Create Release'
-
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -44,97 +43,27 @@ jobs:
             Initial release
           draft: false
           prerelease: false
-      - name: 'Upload Release Asset'
-
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: build/libs/BarcodeImageProcessor-${{env.VERSION}}.jar
-          asset_name: BarcodeImageProcessor-${{env.VERSION}}.jar
-          asset_content_type: application/java-archive
       - name: 'Write Upload URL To File'
-
         run: |
           echo "${{steps.create_release.outputs.upload_url}}" > upload_url.txt
-
       - name: 'Publish Upload URL'
-
         uses: actions/upload-artifact@v2
         with:
           name: 'upload_url.txt'
           path: 'upload_url.txt'
-
-  build-windows-image:
-    needs: [build-jar-job]
-    name: 'Build Windows Image'
-    runs-on: windows-2016
-    steps:
-      - name: 'Checkout'
-        uses: actions/checkout@v1
-      - name: 'Download GraalVM'
-        run: |
-          Invoke-RestMethod -Uri https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.0.0/graalvm-ce-java11-windows-amd64-21.0.0.zip -OutFile 'graal.zip'
-      - name: 'Install GraalVM'
-        run: |
-          Expand-Archive -path 'graal.zip' -destinationpath '.'
-      - name: 'Install Native Image'
-        run: |
-          graalvm-ce-java11-21.0.0\bin\gu.cmd install native-image
-      - name: Uninstall Installed MS VC++ Redistributables
-        shell: powershell
-        run: |
-          $apps = Get-WmiObject -Class Win32_Product -Filter "Name LIKE 'Microsoft Visual C++ 20%% Redistributable%'"
-          foreach ($app in $apps) {
-            echo $app
-            $app.Uninstall()
-          }
-      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools'
-        run: |
-          choco install -d --no-progress visualstudio2017-workload-vctools
-      - name: 'Get Version Number'
-        run: |
-          echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
-        shell: bash
-      - name: 'Get JAR Artifact'
-        uses: actions/download-artifact@v2
-        with:
-          name: 'BarcodeImageProcessor-${{env.VERSION}}.jar'
-          path: ./
-
-      - name: 'Build Native Image'
-        shell: cmd
-        env:
-          JAVA_HOME: ./graalvm-ce-java11-21.0.0
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          ./graalvm-ce-java11-21.0.0/bin/native-image --no-server --no-fallback --initialize-at-build-time=com.github.jaiimageio.impl.common.PackageUtil -H:Name=BarcodeImageProcessor-${{env.VERSION}} --allow-incomplete-classpath -jar BarcodeImageProcessor-${{env.VERSION}}.jar
-      - name: 'Get Release URL'
-
-        uses: actions/download-artifact@v2
-        with:
-          name: 'upload_url.txt'
-      - name: 'Get Upload URL'
-
-        run: |
-          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
-        shell: bash
-      - name: 'Publish Windows Image'
+      - name: 'Publish Windows Installer'
         if: ${{ success() }}
         uses: actions/upload-artifact@v2
         with:
-          name: 'BarcodeImageProcessor-${{env.VERSION}}-windows.exe'
-          path: ./*.exe
-      - name: 'Release Windows Image Asset'
-
+          name: 'BarcodeImageProcessor-${{env.VERSION}}.msi'
+          path: ./*.msi
+      - name: 'Release Windows Installer Asset'
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{env.UPLOAD_URL}}
-          asset_name: BarcodeImageProcessor-${{env.VERSION}}-windows.exe
-          asset_path: BarcodeImageProcessor-${{env.VERSION}}.exe
+          asset_name: BarcodeImageProcessor-${{env.VERSION}}.msi
+          asset_path: BarcodeImageProcessor-${{env.VERSION}}.msi
           asset_content_type: application/octet-stream
