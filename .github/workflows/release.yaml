@@ -46,5 +46,5 @@ jobs:
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
           asset_name: BarcodeImageProcessor.msi
-          asset_path: BarcodeImageProcessor.msi
+          asset_path: ./BarcodeImageProcessor.msi
           asset_content_type: application/octet-stream
