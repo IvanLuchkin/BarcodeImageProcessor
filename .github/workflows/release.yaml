@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-installer-job:
-    name: 'Build Installer'
+    name: 'Build Win64 Installer'
     runs-on: windows-latest
 
     steps:
@@ -19,14 +19,14 @@ jobs:
         with:
           java-version: 15
           java-package: jdk+fx
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission for Gradle
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew jpackage
-      - name: 'Get Version Number'
+      - name: 'Get Build Version Number'
         run: |
           echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_ENV
-      - name: 'Publish Installer'
+      - name: 'Publish Windows Installer'
         uses: actions/upload-artifact@v2
         with:
           name: 'BarcodeImageProcessor-${{env.VERSION}}.msi'
@@ -52,7 +52,7 @@ jobs:
         with:
           name: 'upload_url.txt'
           path: 'upload_url.txt'
-      - name: 'Release Windows Installer Asset'
+      - name: 'Release Win64 Installer Asset'
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
