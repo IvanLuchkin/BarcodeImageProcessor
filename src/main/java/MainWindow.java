@@ -105,7 +105,8 @@ public class MainWindow extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource(File.separator + "gui" + File.separator + fxml + ".fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/gui/"  + fxml + ".fxml"));
+        System.out.println(MainWindow.class.getResource("/gui/"  + fxml + ".fxml"));
         return fxmlLoader.load();
     }
 
