@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - v*
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build-installer-job:
@@ -21,17 +19,12 @@ jobs:
           java-package: jdk+fx
       - name: 'Grant execute permission for Gradle'
         run: chmod +x gradlew
-      - name: Build with Gradle
+      - name: 'Build with Gradle'
         run: ./gradlew jpackage
-      - name: Install Gawk
-        run: choco install gawk
-      - name: 'Get Build Version Number'
-        run: |
-          echo "VERSION=$(./gradlew properties -q | findstr "version:" | gawk '{print $2}')" >> $GITHUB_ENV
       - name: 'Publish Windows Installer'
         uses: actions/upload-artifact@v2
         with:
-          name: BarcodeImageProcessor-${{env.VERSION}}.msi
+          name: BarcodeImageProcessor-${{github.ref}}.msi
           path: build/jpackage-installer/*.msi
       - name: 'Create Release'
         id: create_release
@@ -50,6 +43,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_name: BarcodeImageProcessor-${{env.VERSION}}.msi
-          asset_path: BarcodeImageProcessor-${{env.VERSION}}.msi
+          asset_name: BarcodeImageProcessor-${{github.ref}}.msi
+          asset_path: BarcodeImageProcessor-${{github.ref}}.msi
           asset_content_type: application/octet-stream
