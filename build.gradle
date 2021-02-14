@@ -83,8 +83,6 @@ runtime {
 
         jpackageImage {
             imageDir = file("$buildDir/jpackage/BarcodeImageProcessor")
-            //resourceDir = file("src/main/resources")
-            //imageOptions += ['--verbose']
         }
         launcher {
             runInBinDir = true
@@ -92,19 +90,14 @@ runtime {
         }
         def currentOs = org.gradle.internal.os.OperatingSystem.current()
         jpackageHome = "${JAVA_HOME}"
-        //mainClass = 'Launcher'
         mainJar = "BarcodeImageProcessor-${version}.jar"
         appVersion = version
         skipInstaller = false
-        //installerName = 'BIP-Installer'
         installerOutputDir = file("$buildDir/jpackage-installer")
-        //installerOptions += ['--resource-dir', "$buildDir/resources/main"]
         if (currentOs.windows) {
-           // jvmArgs += ['-Dsun.java2d.d3d=false']
             targetPlatform('windows-x64', "${JAVA_HOME}")
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut',
                                  '--app-image', "$buildDir/jpackage/BarcodeImageProcessor"]
-            //installerOptions += ['--resource-dir', "$buildDir/jpackage/BarcodeImageProcessor/runtime/bin"]
             targetPlatformName = 'windows-x64'
             installerType = 'msi'
         } else if (currentOs.linux) {
