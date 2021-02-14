@@ -33,10 +33,6 @@ sourceCompatibility = 15
 targetCompatibility = 15
 def JAVA_HOME = System.properties.find { it.key == "java.home" } .getValue()
 
-//java {
-  //  modularity.inferModulePath = true
-//}
-
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
@@ -79,7 +75,10 @@ jar {
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     modules = ['javafx.controls', 'javafx.base', 'javafx.graphics', 'javafx.fxml',
-               'javafx.swing', 'javafx.media', 'javafx.web']
+               'javafx.swing', 'javafx.media', 'javafx.web', 'java.instrument', 'java.desktop',
+               'java.scripting', 'java.logging', 'jdk.unsupported.desktop', 'java.net.http',
+               'java.xml', 'jdk.jsobject', 'jdk.xml.dom', 'jdk.jfr', 'jdk.unsupported',
+               'java.datatransfer']
     jpackage {
 
         jpackageImage {
