@@ -95,6 +95,7 @@ public class MainWindow extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         try {
+            System.out.println("Loading stage - start()");
             scene = new Scene(loadFXML("main"));
             //stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/icon.png")));
             stage.setTitle("Barcode Image Processor");
@@ -108,7 +109,7 @@ public class MainWindow extends Application {
 
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/gui/" + fxml + ".fxml"));
-        System.out.println(MainWindow.class.getResource("/gui/" + fxml + ".fxml"));
+        System.out.println("Resource loaded - loadFXML() " + MainWindow.class.getResource("/gui/" + fxml + ".fxml"));
         return fxmlLoader.load();
     }
 
@@ -126,10 +127,11 @@ public class MainWindow extends Application {
         File selectedDirectory = directoryChooser.showDialog(scene.getWindow());
         String selectedDirPath = selectedDirectory.getAbsolutePath();
         initFolderInput.setText(selectedDirPath);
-        System.out.println(selectedDirectory.getAbsolutePath());
+        System.out.println("Dir chosen - browse() " + selectedDirectory.getAbsolutePath());
     }
 
     public void scan() {
+        System.out.println("Scan started - scan() ");
         imageScrollPane.setVisible(false);
         if (!initParams()) {
             return;
@@ -147,6 +149,7 @@ public class MainWindow extends Application {
         Task<ExitCode> scanFilesTask = new Task<ExitCode>() {
             @Override
             public ExitCode call() throws Exception {
+                System.out.println("ScanFilesTask called - call() ");
                 ExitCode result =
                         processFiles(0, 0, "NO_RES_YET", "NONE");
                 Platform.runLater(() -> errorLabel.setText(MESSAGES.get(result)));
@@ -154,6 +157,7 @@ public class MainWindow extends Application {
             }
 
             public ExitCode processFiles(int fileIndex, int counter, String lastResult, String prevFileType) {
+                System.out.println("File processing started - processFIles()");
                 ExitCode res = analyzeAngleCounter(counter);
                 if (!res.equals(ExitCode.SUCCESS)) {
                     return res;
@@ -167,6 +171,7 @@ public class MainWindow extends Application {
             }
 
             private void executeTransaction() {
+                System.out.println("Transaction execution ");
                 for (Map.Entry<File, String> entry : toBeRenamed.entrySet()) {
                     entry.getKey().renameTo(new File(entry.getValue()));
                 }
@@ -176,6 +181,7 @@ public class MainWindow extends Application {
 
             public ExitCode analyzeScanResult(int fileIndex, int counter, String lastBarcodeResult,
                                               String newResult, String prevFileType, File file) {
+                System.out.println("analyzeScanResult()");
                 switch (newResult.length()) {
                     case (38):
                         ExitCode res = analyzePreviousFile(prevFileType, lastBarcodeResult, file, counter);
@@ -206,6 +212,7 @@ public class MainWindow extends Application {
             }
 
             public ExitCode analyzePreviousFile(String prevFileType, String lastBarcodeResult, File file, int counter) {
+                System.out.println("analyzePreviousFile() ");
                 switch (prevFileType) {
                     case "ANGLE" -> {
                         toBeRenamed.put(file, RES_FOLDER.toString() + File.separator + lastBarcodeResult + "_" + counter + ".jpg");
@@ -223,6 +230,7 @@ public class MainWindow extends Application {
             }
 
             public ExitCode analyzeAngleCounter(int counter) {
+                System.out.println("analyzeAngleCounter()");
                 if (MAX_CHAIN_SIZE_EXCLUSIVE == -1) {
                     if (counter > MAX_CHAIN_SIZE_DEFAULT) {
                         loadFiles();
@@ -240,6 +248,7 @@ public class MainWindow extends Application {
             }
 
             private String getResult(File file) {
+                System.out.println("getResult()");
                 try {
                     String name = file.getName();
                     if (name.contains("!")) return name.substring(name.indexOf('!') + 1, 6);
@@ -288,6 +297,7 @@ public class MainWindow extends Application {
             }
 
             public void fillScrollPaneWithImages() {
+                System.out.println("fillScrollPaneWithImages()");
                 imageScrollPane.setVisible(true);
                 GridPane grid = new GridPane();
                 List<File> files = Arrays.stream(FILES).limit(7).collect(Collectors.toList());
@@ -304,6 +314,7 @@ public class MainWindow extends Application {
             }
 
             private ImageView createImageView(File file) {
+                System.out.println("createImageView()");
                 ImageView imageView = new ImageView();
                 Image image = new Image(Paths.get(file.getAbsolutePath()).toUri().toString());
                 imageView.setImage(image);
@@ -358,6 +369,7 @@ public class MainWindow extends Application {
     }
 
     public boolean initParams() {
+        System.out.println("Params initialized - initParams() ");
         String initFolderParam = initFolderInput.getText();
         if (!initFolderParam.trim().equals("")) {
             INIT_FOLDER = Paths.get(initFolderParam);
@@ -412,6 +424,7 @@ public class MainWindow extends Application {
     }
 
     public int loadFiles() {
+        System.out.println("Files loaded - loadFiles() ");
         File[] files = new File(INIT_FOLDER.toString()).listFiles();
         if (files == null) {
             System.out.println("Folder does not exist or does not contain any files.");
@@ -424,6 +437,7 @@ public class MainWindow extends Application {
     }
 
     private boolean checkForIncorrectlyRenamed() {
+        System.out.println("Names checked loaded - checkFor..() ");
         for (File file : FILES) {
             String name = file.getName();
             if (name.contains("!") && name.length() < 11) {
@@ -435,6 +449,7 @@ public class MainWindow extends Application {
     }
 
     public void sortFiles() {
+        System.out.println("Files sorted - sortFiles() ");
         Arrays.sort(FILES, (prev, next) -> {
             String prevName = prev.getName();
             String nextName = next.getName();
@@ -448,14 +463,17 @@ public class MainWindow extends Application {
     }
 
     public boolean createResFolder() {
+        System.out.println("Result folder created ");
         try {
             RES_FOLDER = Paths.get(INIT_FOLDER + File.separator + "res");
             Files.createDirectory(RES_FOLDER);
             return true;
         } catch (FileAlreadyExistsException e) {
+            e.printStackTrace();
             return true;
         } catch (IOException e) {
             errorLabel.setText("Could not create result folder.");
+            e.printStackTrace();
             return false;
         }
     }
