@@ -24,7 +24,7 @@ jobs:
       - name: 'Build with Gradle'
         run: ./gradlew jpackage
       - name: 'Find output file'
-        run: dir *.msi
+        run: echo tree /F
       - name: 'Create Release'
         id: create_release
         uses: actions/create-release@v1
@@ -42,6 +42,5 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_name: BarcodeImageProcessor.msi
-          asset_path: ./build/jpackage-installer/BarcodeImageProcessor.msi
+          asset_path: build/jpackage-installer/BarcodeImageProcessor.msi
           asset_content_type: application/octet-stream
