@@ -5,6 +5,7 @@ plugins {
     id 'application'
     id 'org.beryx.runtime' version '1.12.1'
     id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'checkstyle'
 }
 
 group = 'BIP'
@@ -17,6 +18,10 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'org.beryx.runtime'
 apply plugin: 'org.openjfx.javafxplugin'
+
+checkstyle {
+    toolVersion = "8.40"
+}
 
 repositories {
     mavenLocal()

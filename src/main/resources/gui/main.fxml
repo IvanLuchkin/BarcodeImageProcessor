@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainWindowController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="293.0" minWidth="10.0" prefWidth="269.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="474.0" minWidth="10.0" prefWidth="431.0" />
@@ -26,7 +26,7 @@
             <Insets right="30.0" top="35.0" />
          </GridPane.margin>
       </Label>
-      <Button fx:id="browseButton" mnemonicParsing="false" onAction="#browse" text="Browse" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.valignment="TOP">
+      <Button fx:id="browseButton" mnemonicParsing="false" onAction="#getPathFromBrowseDialog" text="Browse" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.valignment="TOP">
          <GridPane.margin>
             <Insets right="44.0" top="30.0" />
          </GridPane.margin>
@@ -39,7 +39,7 @@
             <Insets left="44.0" right="44.0" />
          </GridPane.margin>
       </ScrollPane>
-      <Button fx:id="scanButton" maxHeight="50.0" maxWidth="150.0" minHeight="50.0" minWidth="150.0" mnemonicParsing="false" onAction="#scan" prefHeight="50.0" prefWidth="150.0" text="Scan folder" GridPane.rowIndex="2" GridPane.valignment="TOP">
+      <Button fx:id="scanButton" maxHeight="50.0" maxWidth="150.0" minHeight="50.0" minWidth="150.0" mnemonicParsing="false" onAction="#onScanAction" prefHeight="50.0" prefWidth="150.0" text="Scan folder" GridPane.rowIndex="2" GridPane.valignment="TOP">
          <GridPane.margin>
             <Insets left="44.0" top="30.0" />
          </GridPane.margin>

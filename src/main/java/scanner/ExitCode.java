@@ -1,3 +1,5 @@
+package scanner;
+
 public enum ExitCode {
     TOO_MANY_FAILED_SCANS,
     WRONG_PARAM_DEF,
