@@ -24,7 +24,7 @@ jobs:
       - name: 'Build with Gradle'
         run: ./gradlew jpackage
       - name: 'Release Win64 Installer'
-      - uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           title: Release ${{github.ref}}
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
