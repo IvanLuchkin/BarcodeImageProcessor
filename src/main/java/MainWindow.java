@@ -97,7 +97,6 @@ public class MainWindow extends Application {
         try {
             System.out.println("Loading stage - start()");
             scene = new Scene(loadFXML("main"));
-            //stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/icon.png")));
             stage.setTitle("Barcode Image Processor");
             stage.setScene(scene);
             stage.setResizable(false);
