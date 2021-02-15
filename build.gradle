@@ -3,7 +3,6 @@ plugins {
     id 'maven-publish'
     id 'idea'
     id 'application'
-    id 'edu.sc.seis.launch4j' version '2.4.9'
     id 'org.beryx.runtime' version '1.12.1'
     id 'org.openjfx.javafxplugin' version '0.0.8'
 }
@@ -16,7 +15,6 @@ applicationName = "Barcode Image Processor"
 
 apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: 'edu.sc.seis.launch4j'
 apply plugin: 'org.beryx.runtime'
 apply plugin: 'org.openjfx.javafxplugin'
 
