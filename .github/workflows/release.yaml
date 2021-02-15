@@ -29,4 +29,4 @@ jobs:
           title: Release ${{github.ref}}
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          files: /build/jpackage-installer/*.msi
+          files: build/jpackage-installer/*.msi
