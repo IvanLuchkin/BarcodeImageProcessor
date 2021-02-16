@@ -9,15 +9,10 @@ plugins {
 }
 
 group = 'BIP'
-version = '1.9'
+version = '2.0'
 description = 'bip'
 mainClassName = 'Launcher'
 applicationName = "Barcode Image Processor"
-
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'org.beryx.runtime'
-apply plugin: 'org.openjfx.javafxplugin'
 
 checkstyle {
     toolVersion = "8.40"
@@ -83,7 +78,6 @@ runtime {
                'java.xml', 'jdk.jsobject', 'jdk.xml.dom', 'jdk.jfr', 'jdk.unsupported',
                'java.datatransfer']
     jpackage {
-
         jpackageImage {
             imageDir = file("$buildDir/jpackage/BarcodeImageProcessor")
         }

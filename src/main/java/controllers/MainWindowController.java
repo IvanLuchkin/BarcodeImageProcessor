@@ -1,6 +1,9 @@
 package controllers;
 
-import filesystem.FilesLoader;
+import static filesystem.FilesLoader.loadFiles;
+import static filesystem.FolderCreator.createResFolder;
+import static scanner.ParametersInitializer.initParams;
+
 import java.io.File;
 import java.io.IOException;
 import javafx.application.Application;
@@ -11,12 +14,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import scanner.ImageProcessor;
+import scanner.ExitCode;
 import scanner.ParametersInitializer;
+import tasks.ScanFilesTask;
 
 public class MainWindowController extends Application {
     private static Scene scene;
@@ -25,7 +28,7 @@ public class MainWindowController extends Application {
     @FXML
     private Button browseButton;
     @FXML
-    private ScrollPane imageScrollPane;
+    private DynamicScrollPane imageScrollPane;
     @FXML
     private Button scanButton;
     @FXML
@@ -38,8 +41,6 @@ public class MainWindowController extends Application {
     private Button helpButton;
     @FXML
     private ProgressBar progressBar;
-    private ParametersInitializer parametersInitializer;
-    private FilesLoader filesLoader;
 
     public static void main(String[] args) {
         launch(args);
@@ -53,7 +54,6 @@ public class MainWindowController extends Application {
             stage.setScene(scene);
             stage.setResizable(false);
             stage.show();
-
         } catch (IOException e) {
             throw new RuntimeException("Could not load GUI", e);
         }
@@ -82,32 +82,30 @@ public class MainWindowController extends Application {
     }
 
     public void onScanAction() {
-        this.parametersInitializer = new ParametersInitializer(this);
-        this.filesLoader = new FilesLoader(this);
-        new ImageProcessor(this).scan();
-    }
-
-    public ScrollPane getImageScrollPane() {
-        return imageScrollPane;
-    }
-
-    public ProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    public TextField getInitFolderInput() {
-        return initFolderInput;
-    }
-
-    public TextField getMaxChainSizeDefaultInput() {
-        return maxChainSizeDefaultInput;
-    }
-
-    public TextField getMaxChainSizeExclusiveInput() {
-        return maxChainSizeExclusiveInput;
-    }
-
-    public Label getErrorLabel() {
-        return errorLabel;
+        ParametersInitializer.setInitFolderInput(initFolderInput);
+        ParametersInitializer.setMaxChainSizeDefaultInput(maxChainSizeDefaultInput);
+        ParametersInitializer.setMaxChainSizeExclusiveInput(maxChainSizeExclusiveInput);
+        ExitCode.setErrorLabel(errorLabel);
+        ScanFilesTask.setImageScrollPane(imageScrollPane);
+        imageScrollPane.setVisible(false);
+        ExitCode initParamsResult = initParams();
+        if (initParamsResult.isAbortive()) {
+            initParamsResult.showMessage();
+            return;
+        }
+        if (ScanFilesTask.getTotalFiles() == 0) {
+            ScanFilesTask.setTotalFiles(loadFiles());
+        }
+        loadFiles();
+        ExitCode folderCreationResult = createResFolder();
+        if (folderCreationResult.isAbortive()) {
+            folderCreationResult.showMessage();
+            return;
+        }
+        ScanFilesTask scanFilesTask = new ScanFilesTask();
+        progressBar.progressProperty().bind(scanFilesTask.progressProperty());
+        Thread thread = new Thread(scanFilesTask);
+        thread.setDaemon(true);
+        thread.start();
     }
 }

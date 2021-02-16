@@ -4,21 +4,23 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import scanner.ExitCode;
 import tasks.ScanFilesTask;
 
 public class FolderCreator {
-    public static boolean createResFolder() {
+    public static ExitCode createResFolder() {
         try {
-            ScanFilesTask.setResFolder(Paths.get(
-                    ScanFilesTask.getInitFolder() + File.separator + "res"));
-            Files.createDirectory(ScanFilesTask.getResFolder());
-            return true;
+            Path resultFolderPath =
+                    Paths.get(ScanFilesTask.getInitFolder() + File.separator + "res");
+            ScanFilesTask.setResFolder(resultFolderPath);
+            Files.createDirectory(resultFolderPath);
+            return ExitCode.SUCCESS;
         } catch (FileAlreadyExistsException e) {
-            return true;
+            return ExitCode.SUCCESS;
         } catch (IOException e) {
-            //errorLabel.setText("Could not create result folder.");
-            return false;
+            return ExitCode.RES_FOLDER_CREATION_FAILED;
         }
     }
 }

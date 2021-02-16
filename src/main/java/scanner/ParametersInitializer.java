@@ -1,75 +1,84 @@
 package scanner;
 
-import controllers.MainWindowController;
 import java.nio.file.Paths;
+import java.util.List;
+import javafx.scene.control.TextField;
 import tasks.ScanFilesTask;
 
 public class ParametersInitializer {
-    private static MainWindowController mainWindowController;
+    private static TextField initFolderInput;
+    private static TextField maxChainSizeDefaultInput;
+    private static TextField maxChainSizeExclusiveInput;
 
-    public ParametersInitializer(MainWindowController mainWindowController) {
-        ParametersInitializer.mainWindowController = mainWindowController;
+    public static ExitCode initParams() {
+        List<ExitCode> initializationResults = List.of(initInitialFolder(),
+                initDefaultMaxChainSize(),
+                initExclusiveMaxChainSize());
+        return initializationResults.stream()
+                .filter(ExitCode::isAbortive)
+                .findFirst().orElse(ExitCode.SUCCESS);
     }
 
-    public static boolean initParams() {
-        return initInitialFolder() && initDefaultMaxChainSize() && initExclusiveMaxChainSize();
-    }
-
-    private static boolean initInitialFolder() {
-        String initFolderParam = mainWindowController.getInitFolderInput().getText();
+    private static ExitCode initInitialFolder() {
+        String initFolderParam = initFolderInput.getText();
         if (!initFolderParam.trim().equals("")) {
             ScanFilesTask.setInitFolder(Paths.get(initFolderParam));
-            return true;
+            return ExitCode.SUCCESS;
         } else {
-            mainWindowController.getErrorLabel().setText("Invalid path");
-            return false;
+            return ExitCode.INVALID_PATH;
         }
     }
 
-    private static boolean initExclusiveMaxChainSize() {
-        String exclusiveMaxAngleCountParam =
-                mainWindowController.getMaxChainSizeExclusiveInput().getText();
+    private static ExitCode initExclusiveMaxChainSize() {
+        String exclusiveMaxAngleCountParam = maxChainSizeExclusiveInput.getText();
         if (!exclusiveMaxAngleCountParam.isEmpty()) {
             try {
                 int exclMaxChainSize = Integer.parseInt(exclusiveMaxAngleCountParam);
                 if (exclMaxChainSize < 20 && exclMaxChainSize > 0) {
                     ScanFilesTask.setMaxChainSizeExclusive(exclMaxChainSize);
-                    return true;
+                    return ExitCode.SUCCESS;
                 } else {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
-                mainWindowController.getErrorLabel()
-                        .setText("Wrong parameter for first product angle count");
-                return false;
+                return ExitCode.WRONG_PARAM_EXCL;
             }
         } else {
             ScanFilesTask.setMaxChainSizeExclusive(-1);
-            return true;
+            return ExitCode.SUCCESS;
         }
     }
 
-    private static boolean initDefaultMaxChainSize() {
-        String defaultMaxAngleSizeParam = 
-                mainWindowController.getMaxChainSizeDefaultInput().getText();
+    private static ExitCode initDefaultMaxChainSize() {
+        String defaultMaxAngleSizeParam = maxChainSizeDefaultInput.getText();
         if (!defaultMaxAngleSizeParam.isEmpty()) {
             try {
                 int defMaxChainSize = Integer.parseInt(defaultMaxAngleSizeParam);
                 if (defMaxChainSize < 20 && defMaxChainSize > 0) {
                     ScanFilesTask.setMaxChainSizeDefault(defMaxChainSize);
-                    return true;
+                    return ExitCode.SUCCESS;
                 } else {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                mainWindowController.getErrorLabel()
-                        .setText("Wrong parameter for default max angle count");
-                return false;
+                return ExitCode.WRONG_PARAM_DEF;
             }
         } else {
             ScanFilesTask.setMaxChainSizeDefault(2);
-            return true;
+            return ExitCode.SUCCESS;
         }
+    }
+
+    public static void setInitFolderInput(TextField initFolderInput) {
+        ParametersInitializer.initFolderInput = initFolderInput;
+    }
+
+    public static void setMaxChainSizeDefaultInput(TextField maxChainSizeDefaultInput) {
+        ParametersInitializer.maxChainSizeDefaultInput = maxChainSizeDefaultInput;
+    }
+
+    public static void setMaxChainSizeExclusiveInput(TextField maxChainSizeExclusiveInput) {
+        ParametersInitializer.maxChainSizeExclusiveInput = maxChainSizeExclusiveInput;
     }
 }
